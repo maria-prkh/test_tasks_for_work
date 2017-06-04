@@ -17,11 +17,7 @@ class EgnyteClient(object):
     def get_listing(self, folder_name):
         """To get json with list of folders which contains specified folder."""
 
-        headers = {
-            'Accept': 'application/json',
-            'Authorization': 'Bearer {}'.format(self.token),
-            'Content-Type': 'application/json'
-        }
+        headers = self.get_headers()
         url = self.get_url(folder_name)
         resp = requests.get(url, headers=headers)
 
@@ -32,11 +28,7 @@ class EgnyteClient(object):
     def create_folder(self, folder_path):
         """Creates folder for a specified folder path."""
 
-        headers = {
-            'Accept': 'application/json',
-            'Authorization': 'Bearer {}'.format(self.token),
-            'Content-Type': 'application/json'
-        }
+        headers = self.get_headers()
 
         data = {"action": "add_folder"}
         url = self.get_url(folder_path)
@@ -45,11 +37,7 @@ class EgnyteClient(object):
         resp.raise_for_status()
 
     def remove_folder(self, folder_path, ignore_not_found=False):
-        headers = {
-            'Accept': 'application/json',
-            'Authorization': 'Bearer {}'.format(self.token),
-            'Content-Type': 'application/json'
-        }
+        headers = self.get_headers()
 
         url = self.get_url(folder_path)
 
@@ -60,16 +48,20 @@ class EgnyteClient(object):
 
         resp.raise_for_status()
 
-    def upload_file(self, folder_path, file_path):
-        """Uploads a file to the specified folder path."""
-        pass
-
-    def rename_folder(self, original_path, destination_path):
+    def get_headers(self):
         headers = {
             'Accept': 'application/json',
             'Authorization': 'Bearer {}'.format(self.token),
             'Content-Type': 'application/json'
         }
+        return headers
+
+    def upload_file(self, folder_path, file_path):
+        """Uploads a file to the specified folder path."""
+        pass
+
+    def rename_folder(self, original_path, destination_path):
+        headers = self.get_headers()
 
         data = {
             "action": "move",
