@@ -92,7 +92,7 @@ class TestFilesAndFoldersListing(unittest.TestCase):
 
     def test_folder_exists_in_listing(self):
         folder_to_list = 'Shared'
-        expected_to_find = 'adghfdghhg'
+        expected_to_find = 'ThisFolderIWantToFind'
         folder_path = '{}/{}'.format(folder_to_list, expected_to_find)
 
         self.client.create_folder(folder_path)
@@ -104,7 +104,7 @@ class TestFilesAndFoldersListing(unittest.TestCase):
         self.assertIn(expected_to_find, folder_names_in_listing)
 
     def test_folder_created(self):
-        folder_to_create = 'ssdkoooljj'
+        folder_to_create = 'TheBestFolderInTheWorld'
         parent_folder = 'Shared'
         folder_path = '{}/{}'.format(parent_folder, folder_to_create)
 
@@ -152,7 +152,7 @@ class TestFilesAndFoldersListing(unittest.TestCase):
 
     def test_remove_folder(self):
         parent_folder = 'Shared'
-        new_folder = 'dakjda'
+        new_folder = 'BrandNewFolder'
         folder_path = '{}/{}'.format(parent_folder, new_folder)
 
         self.client.create_folder(folder_path)
