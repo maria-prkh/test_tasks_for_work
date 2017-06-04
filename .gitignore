@@ -1,0 +1,8 @@
+.idea/
+API_task.py
+__pycache__/
+listing.py
+
+*.pyc
+*.pyo
+*.swp
