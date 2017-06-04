@@ -10,11 +10,13 @@ class EgnyteClient(object):
 
     def get_url(self, folder_path):
         """Gets url for a concrete folder."""
+
         url_tpl = 'https://{host}/pubapi/v1/fs/{folder}'
         return url_tpl.format(host=self.host_name, folder=folder_path)
 
     def get_listing(self, folder_name):
         """To get json with list of folders which contains specified folder."""
+
         headers = {
             'Accept': 'application/json',
             'Authorization': 'Bearer {}'.format(self.token),
@@ -111,25 +113,41 @@ class TestFilesAndFoldersListing(unittest.TestCase):
 
         folder_listing = self.client.get_listing(parent_folder)
 
-        folder_names_in_listing = [f['name'] for f in folder_listing['folders']]
+        folder_names_in_listing = [f['name']
+                                   for f in folder_listing['folders']]
         self.assertIn(folder_to_create, folder_names_in_listing)
 
     def test_rename_folder(self):
         parent_folder = 'Shared'
         old_folder_name = 'FolderIsNotYetRenamed'
         new_folder_name = 'FolderHasBeenRenamed'
-        folder_path_before_rename = '{}/{}'.format(parent_folder, old_folder_name)
-        folder_path_after_rename = '/{}/{}'.format(parent_folder, new_folder_name)
+        folder_path_before_rename = '{}/{}'.format(parent_folder,
+                                                   old_folder_name)
+        folder_path_after_rename = '/{}/{}'.format(parent_folder,
+                                                   new_folder_name)
 
         self.client.create_folder(folder_path_before_rename)
-        self.addCleanup(self.client.remove_folder, folder_path_before_rename, True)
+        self.addCleanup(
+            self.client.remove_folder,
+            folder_path_before_rename,
+            True
+        )
 
-        self.client.rename_folder(folder_path_before_rename, folder_path_after_rename)
-        self.addCleanup(self.client.remove_folder, folder_path_after_rename, True)
+        self.client.rename_folder(
+            folder_path_before_rename,
+            folder_path_after_rename
+        )
+
+        self.addCleanup(
+            self.client.remove_folder,
+            folder_path_after_rename,
+            True
+        )
 
         folder_listing = self.client.get_listing(parent_folder)
 
-        folder_names_in_listing = [f['name'] for f in folder_listing['folders']]
+        folder_names_in_listing = [f['name']
+                                   for f in folder_listing['folders']]
         self.assertIn(new_folder_name, folder_names_in_listing)
 
     def test_remove_folder(self):
