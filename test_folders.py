@@ -21,7 +21,9 @@ class TestFilesAndFoldersListing(unittest.TestCase):
         self.addCleanup(self.client.remove_folder, folder_path, True)
 
         listing = self.client.get_listing(folder_to_list)
-        folder_names_in_listing = [f['name'] for f in listing['folders']]
+        folder_names_in_listing = []
+        for f in listing['folders']:
+            folder_names_in_listing.append(f['name'])
 
         self.assertIn(expected_to_find, folder_names_in_listing)
 
@@ -82,8 +84,11 @@ class TestFilesAndFoldersListing(unittest.TestCase):
 
         folder_listing = self.client.get_listing(parent_folder)
 
-        folder_names_in_listing = [f['name'] for f in
-                                   folder_listing['folders']]
+        folder_names_in_listing = []
+
+        for f in folder_listing['folders']:
+            folder_names_in_listing.append(f['name'])
+
         self.assertNotIn(new_folder, folder_names_in_listing)
 
     def test_upload_file(self):
