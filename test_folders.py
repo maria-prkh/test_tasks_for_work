@@ -100,5 +100,5 @@ class TestFilesAndFoldersListing(unittest.TestCase):
             fp.write(b'Hello World!\n')
             fp.seek(0)
 
-            # TODO: add cleanup for created flder with file
             self.client.upload_file(fp, full_path)
+            self.addCleanup(self.client.remove_folder, full_path, True)
