@@ -44,10 +44,10 @@ class EgnyteClient(object):
         resp = requests.post(url, data=json.dumps(data), headers=headers)
         resp.raise_for_status()
 
-    def remove_folder(self, folder_path, ignore_not_found=False):
+    def remove_file_or_folder(self, full_path, ignore_not_found=False):
         headers = self.get_headers()
 
-        url = self.get_url(folder_path, API_TYPE_FS)
+        url = self.get_url(full_path, API_TYPE_FS)
 
         resp = requests.delete(url, headers=headers)
 
@@ -73,6 +73,8 @@ class EgnyteClient(object):
 
         resp.raise_for_status()
 
+        return resp.json()
+
     def rename_folder(self, original_path, destination_path):
         headers = self.get_headers()
 
@@ -84,3 +86,6 @@ class EgnyteClient(object):
         url = self.get_url(original_path, API_TYPE_FS)
         response = requests.post(url, data=json.dumps(data), headers=headers)
         response.raise_for_status()
+
+
+

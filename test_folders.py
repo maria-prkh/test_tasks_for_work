@@ -1,6 +1,8 @@
 import unittest
 import tempfile
 from egnyte_client import EgnyteClient
+from base64 import b64decode
+
 
 
 class TestFilesAndFoldersListing(unittest.TestCase):
@@ -18,7 +20,7 @@ class TestFilesAndFoldersListing(unittest.TestCase):
         folder_path = '{}/{}'.format(folder_to_list, expected_to_find)
 
         self.client.create_folder(folder_path)
-        self.addCleanup(self.client.remove_folder, folder_path, True)
+        self.addCleanup(self.client.remove_file_or_folder, folder_path, True)
 
         listing = self.client.get_listing(folder_to_list)
         folder_names_in_listing = []
@@ -33,7 +35,7 @@ class TestFilesAndFoldersListing(unittest.TestCase):
         folder_path = '{}/{}'.format(parent_folder, folder_to_create)
 
         self.client.create_folder(folder_path)
-        self.addCleanup(self.client.remove_folder, folder_path, True)
+        self.addCleanup(self.client.remove_file_or_folder, folder_path, True)
 
         folder_listing = self.client.get_listing(parent_folder)
 
@@ -52,7 +54,7 @@ class TestFilesAndFoldersListing(unittest.TestCase):
 
         self.client.create_folder(folder_path_before_rename)
         self.addCleanup(
-            self.client.remove_folder,
+            self.client.remove_file_or_folder,
             folder_path_before_rename,
             True
         )
@@ -63,7 +65,7 @@ class TestFilesAndFoldersListing(unittest.TestCase):
         )
 
         self.addCleanup(
-            self.client.remove_folder,
+            self.client.remove_file_or_folder,
             folder_path_after_rename,
             True
         )
@@ -80,7 +82,7 @@ class TestFilesAndFoldersListing(unittest.TestCase):
         folder_path = '{}/{}'.format(parent_folder, new_folder)
 
         self.client.create_folder(folder_path)
-        self.client.remove_folder(folder_path)
+        self.client.remove_file_or_folder(folder_path)
 
         folder_listing = self.client.get_listing(parent_folder)
 
@@ -101,4 +103,33 @@ class TestFilesAndFoldersListing(unittest.TestCase):
             fp.seek(0)
 
             self.client.upload_file(fp, full_path)
-            self.addCleanup(self.client.remove_folder, full_path, True)
+            self.addCleanup(self.client.remove_file_or_folder, full_path, True)
+
+    def test_file_is_restored_from_trash(self):
+        parent_folder = 'Shared/__Maria'
+        file_name_to_list = 'FileToRestoreFromTrash.txt'
+        full_path = '{}/{}'.format(parent_folder, file_name_to_list)
+
+        with tempfile.TemporaryFile() as fp:
+            fp.write(b'Hello World!\n')
+            fp.seek(0)
+
+            uploaded_file_response = self.client.upload_file(fp, full_path)
+            self.client.remove_file_or_folder(full_path)
+
+            trash_listing = self.client.get_listing('trash')
+            file_in_trash = None
+
+            for f in trash_listing['items']:
+                encoded_id_of_file = f['id']
+                decoded_id_of_file = b64decode(encoded_id_of_file)
+                decoded_id_of_file = decoded_id_of_file.decode("utf-8")
+
+                group_id, _, __ = decoded_id_of_file.split('|')
+
+                if group_id == uploaded_file_response['group_id']:
+                    file_in_trash = f
+                    break
+
+            self.assertIsNotNone(file_in_trash, 'File was not found in trash')
+            # TODO: Restore the file from trash and check it's back in folder
