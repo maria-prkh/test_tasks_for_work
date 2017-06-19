@@ -87,5 +87,17 @@ class EgnyteClient(object):
         response = requests.post(url, data=json.dumps(data), headers=headers)
         response.raise_for_status()
 
+    def restore_file_from_trash(self, *ids):
+        headers = self.get_headers()
+
+        body = {
+            "action": "RESTORE",
+            "ids": list(ids)
+        }
+
+        url = self.get_url('trash', API_TYPE_FS)
+
+        response = requests.post(url, data=json.dumps(body), headers=headers)
+        response.raise_for_status()
 
 

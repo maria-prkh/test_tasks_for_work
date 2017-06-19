@@ -4,7 +4,6 @@ from egnyte_client import EgnyteClient
 from base64 import b64decode
 
 
-
 class TestFilesAndFoldersListing(unittest.TestCase):
     def setUp(self):
         super(TestFilesAndFoldersListing, self).setUp()
@@ -132,4 +131,10 @@ class TestFilesAndFoldersListing(unittest.TestCase):
                     break
 
             self.assertIsNotNone(file_in_trash, 'File was not found in trash')
-            # TODO: Restore the file from trash and check it's back in folder
+
+            self.client.restore_file_from_trash(file_in_trash['id'])
+
+            listing = self.client.get_listing(parent_folder)
+            files_names_in_listing = [f['name'] for f in listing['files']]
+
+            self.assertIn(file_name_to_list, files_names_in_listing)
