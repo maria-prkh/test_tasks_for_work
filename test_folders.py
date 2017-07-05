@@ -2,6 +2,7 @@ import unittest
 import tempfile
 from egnyte_client import EgnyteClient
 from base64 import b64decode
+from time import time
 
 
 class TestFilesAndFoldersListing(unittest.TestCase):
@@ -138,3 +139,20 @@ class TestFilesAndFoldersListing(unittest.TestCase):
             files_names_in_listing = [f['name'] for f in listing['files']]
 
             self.assertIn(file_name_to_list, files_names_in_listing)
+
+    def test_create_user(self):
+        username = 'testuser{}'.format(time())
+
+        new_user = self.client.create_user(
+            username=username,
+            email='{}@example.net'.format(username),
+            external_id="236318678",
+            family_name="john",
+            given_name="doe",
+            active=True,
+            send_invite=False,
+            auth_type='egnyte',
+            user_type='standard'
+        )
+        self.addCleanup(self.client.delete_user, new_user['id'])
+        self.assertEqual(new_user['userName'], username)
