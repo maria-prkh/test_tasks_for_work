@@ -1,11 +1,18 @@
-import unittest
 import tempfile
-from egnyte_client import EgnyteClient
+import unittest
 from base64 import b64decode
 from time import time
 
+from fixtures import TestWithFixtures
 
-class TestFilesAndFoldersListing(unittest.TestCase):
+from egnyte_client import EgnyteClient
+from egnyte_fixtures import FolderFixture, UserFixture
+
+
+
+
+
+class TestFilesAndFoldersListing(TestWithFixtures):
     def setUp(self):
         super(TestFilesAndFoldersListing, self).setUp()
 
@@ -77,21 +84,19 @@ class TestFilesAndFoldersListing(unittest.TestCase):
         self.assertIn(new_folder_name, folder_names_in_listing)
 
     def test_remove_folder(self):
-        parent_folder = 'Shared'
-        new_folder = 'BrandNewFolder'
-        folder_path = '{}/{}'.format(parent_folder, new_folder)
+        folder = self.useFixture(FolderFixture())
+        # FolderFixture() - creates an object
 
-        self.client.create_folder(folder_path)
-        self.client.remove_file_or_folder(folder_path)
+        self.client.remove_file_or_folder(folder.full_path)
 
-        folder_listing = self.client.get_listing(parent_folder)
+        folder_listing = self.client.get_listing(folder.parent_folder)
 
         folder_names_in_listing = []
 
         for f in folder_listing['folders']:
             folder_names_in_listing.append(f['name'])
 
-        self.assertNotIn(new_folder, folder_names_in_listing)
+        self.assertNotIn(folder.folder_name, folder_names_in_listing)
 
     def test_upload_file(self):
         parent_folder = 'Shared/__Maria'
@@ -158,21 +163,11 @@ class TestFilesAndFoldersListing(unittest.TestCase):
         self.assertEqual(new_user['userName'], username)
 
     def test_set_folder_perm(self):
-        full_path = 'Shared/__Maria'
-        username = 'testuser{}'.format(time())
+        folder = self.useFixture(FolderFixture())
+        user = self.useFixture(UserFixture())
 
-        new_user = self.client.create_user(
-            username=username,
-            email='{}@example.net'.format(username),
-            external_id="236318678",
-            family_name="john",
-            given_name="doe",
-            active=True,
-            send_invite=False,
-            auth_type='egnyte',
-            user_type='power'
+        test_user_perm = {user.username: "Full"}
+        self.client.setFolderPermissions(
+            folder.full_path,
+            user_perms=test_user_perm
         )
-        self.addCleanup(self.client.delete_user, new_user['id'])
-
-        test_user_perm = {username: "Full"}
-        self.client.setFolderPermissions(full_path, user_perms=test_user_perm)
