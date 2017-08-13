@@ -6,6 +6,7 @@ API_TYPE_FS_CONTENT = 'fs-content'
 API_TYPE_USERS = 'users'
 API_VERSION_V1 = 'v1'
 API_VERSION_V2 = 'v2'
+API_TYPE_PERMS = 'perms'
 
 
 class EgnyteClient(object):
@@ -14,7 +15,7 @@ class EgnyteClient(object):
 
     def get_url(self, full_path, api_type, api_version='v1'):
         """Gets url for a concrete folder."""
-        supported_api_types = ('fs', 'fs-content', 'users')
+        supported_api_types = ('fs', 'fs-content', 'users', 'perms')
         if api_type not in supported_api_types:
             raise ValueError('{} API type is not supported'.format(api_type))
 
@@ -24,13 +25,6 @@ class EgnyteClient(object):
             full_path=full_path,
             api_type=api_type,
             version=api_version
-        )
-    def get_url_users(self):
-        """Gets an url for a user creation."""
-        url_tpl = 'https://{host}/pubapi/v2/users'
-
-        return url.tpl.format(
-            host=self.host_name
         )
 
     def get_listing(self, folder_name):
@@ -140,4 +134,17 @@ class EgnyteClient(object):
         url = self.get_url(id, API_TYPE_USERS, API_VERSION_V2)
 
         response = requests.delete(url, headers=headers)
+        response.raise_for_status()
+
+    def setFolderPermissions(self, full_path, user_perms=None, group_perms=None):
+        headers = self.get_headers()
+
+        data = {
+            "userPerms": user_perms,
+            "groupPerms": group_perms
+        }
+
+        url = self.get_url(full_path, API_TYPE_PERMS, API_VERSION_V2)
+
+        response = requests.post(url, headers=headers, json=data)
         response.raise_for_status()

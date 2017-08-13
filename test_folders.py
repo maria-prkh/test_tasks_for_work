@@ -156,3 +156,23 @@ class TestFilesAndFoldersListing(unittest.TestCase):
         )
         self.addCleanup(self.client.delete_user, new_user['id'])
         self.assertEqual(new_user['userName'], username)
+
+    def test_set_folder_perm(self):
+        full_path = 'Shared/__Maria'
+        username = 'testuser{}'.format(time())
+
+        new_user = self.client.create_user(
+            username=username,
+            email='{}@example.net'.format(username),
+            external_id="236318678",
+            family_name="john",
+            given_name="doe",
+            active=True,
+            send_invite=False,
+            auth_type='egnyte',
+            user_type='power'
+        )
+        self.addCleanup(self.client.delete_user, new_user['id'])
+
+        test_user_perm = {username: "Full"}
+        self.client.setFolderPermissions(full_path, user_perms=test_user_perm)
